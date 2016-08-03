@@ -127,79 +127,90 @@ public class Mancala extends JPanel {
                     }
                 });
         }
-
-        // Run the game without the GUI - as many times as specified in delay.
-        if (delay < 0) {
-
-            // Keep track of how many wins each player has and scores
-            int top_won=0, bottom_won=0, ties = 0;
-
-            // Start timing how long it takes to play "delay" games
-            startTime = new Date().getTime();
-
-            // Play a bunch of games!
-            for (int times=0; times < -delay; times++) {
-                
-                initGame();
-                int topScore=0, bottomScore=0;
-                top_done = false;
-                bottom_done = false;
-
-                while (!top_done && !bottom_done) {
-                    playerMove(false);
-                    
-                    // Check if either player can make a move
-                    top_done = true;
-                    bottom_done = true;
-
-                    // Top player
-                    for (int i=1; i < board.WIDTH-1; i++)
-                        if ( board.getSeeds(1,i) != 0 )
-                            top_done = false; 
-   
-                    // Bottom player
-                    for (int i=1; i < board.WIDTH-1; i++)
-                        if ( board.getSeeds(2,i) != 0 )
-                            bottom_done = false; 
-   
-                    if (top_done || bottom_done) {
-                        topScore = board.getSeeds(1,0);
-                        bottomScore = board.getSeeds(2,board.WIDTH-1);
-                        
-                        if (topScore > bottomScore) top_won++;
-                        else if (bottomScore > topScore) bottom_won++;
-                        else ties++;
-                    }
-                }
-            }
-
-            stopTime = new Date().getTime();
-            runTime = (stopTime - startTime);
-
-            System.out.println("===========================");
-            System.out.println("Total number of games = " + -delay);
-            System.out.println("Top won " + top_won + " times");
-            System.out.println("Bottom won " + bottom_won + " times");
-            System.out.println("Number of tied games = " + ties);
-            System.out.print("\nRuntime for " + -delay + " games = ");
-
-            System.out.println(runTime + " milliseconds");
-            System.out.println("===========================");
-            
-            int points_deducted = bottom_won + ties;
-            System.out.println("\nPoints deducted = " + points_deducted);
-        }
     }
-   
-    /** 
-     *  Initialize the game state
+	
+	
+	//return the number of points deducted
+	public int run(int games, boolean print)
+	{
+		// Keep track of how many wins each player has and scores
+		int top_won=0, bottom_won=0, ties = 0;
+		
+		// Start timing how long it takes to play "delay" games
+		startTime = new Date().getTime();
+		
+		// Play a bunch of games!
+		for (int times=0; times < games; times++) {
+			
+			initGame();
+			int topScore=0, bottomScore=0;
+			top_done = false;
+			bottom_done = false;
+			
+			while (!top_done && !bottom_done) {
+				playerMove(false);
+				
+				// Check if either player can make a move
+				top_done = true;
+				bottom_done = true;
+				
+				// Top player
+				for (int i=1; i < board.WIDTH-1; i++)
+					if ( board.getSeeds(1,i) != 0 )
+						top_done = false;
+				
+				// Bottom player
+				for (int i=1; i < board.WIDTH-1; i++)
+					if ( board.getSeeds(2,i) != 0 )
+						bottom_done = false;
+				
+				if (top_done || bottom_done) {
+					topScore = board.getSeeds(1,0);
+					bottomScore = board.getSeeds(2,board.WIDTH-1);
+					
+					if (topScore > bottomScore) top_won++;
+					else if (bottomScore > topScore) bottom_won++;
+					else ties++;
+				}
+			}
+		}
+		
+		stopTime = new Date().getTime();
+		runTime = (stopTime - startTime);
+		if(print)
+		{
+			System.out.println("===========================");
+			System.out.println("Total number of games = " + games);
+			System.out.println("Top won " + top_won + " times");
+			System.out.println("Bottom won " + bottom_won + " times");
+			System.out.println("Number of tied games = " + ties);
+			System.out.print("\nRuntime for " + -delay + " games = ");
+			
+			System.out.println(runTime + " milliseconds");
+			System.out.println("===========================");
+			
+			int points_deducted = bottom_won + ties;
+			System.out.println("\nPoints deducted = " + points_deducted);
+		}
+		
+		
+		return bottom_won + ties;
+	}
+	
+	
+	
+	
+	
+	
+	/**
+	 *  Initialize the game state
      *
      */
     public void initGame() {
 
         board = new Board();              // Create a new game board
 
-        double chance = Math.random();  // Uncomment these lines to 
+        double chance = Math.random();  // Uncomment these lines to
         if (chance > 0.5)               // alternate who goes first
             turn = TOP;
         else
@@ -213,7 +224,7 @@ public class Mancala extends JPanel {
      *  @param gui    true if the game GUI is to be displayed
      */
     public void playerMove(boolean gui) {
-        
+		
         if (turn == BOTTOM) {
             bottomMove(0,gui);
             if (extra_turn) turn = BOTTOM;
@@ -418,6 +429,10 @@ public class Mancala extends JPanel {
                 window.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
                 window.setVisible(true);
             }
+			else	// Run the game without the GUI - as many times as specified in delay.
+			{
+				content.run(-delay, true);
+			}
         }
         else {
             content = new Mancala();
